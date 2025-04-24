@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WXCXW VPN</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #0C0B0B;
+      color: white;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    /* Шапка */
+    .header {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #ffffff;
+      background-color: #1F1F1F;
+      text-align: center;
+      gap: 5px;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-icon-container {
+      position: relative;
+      width: 80px;
+      height: 40px;
+    }
+
+    .header-icon {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    /* Основной контент */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Блок с балансом */
+    .balance-container {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .balance-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .balance-icon {
+      width: 40px;
+      height: 40px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .balance {
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .balance-label {
+      font-size: 14px;
+      color: #a0a0a0;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    /* Блок с прогрессом уровня */
+    .progress-container {
+      margin-bottom: 30px;
+      z-index: 2;
+      width: 300px;
+    }
+
+    /* Уровни */
+    .level-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #a0a0a0;
+    }
+
+    /* Полоса прогресса */
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background-color: #555;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 5px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: #88d3ce;
+      width: 0;
+      transition: width 0.3s;
+    }
+
+    /* Счетчик прогресса */
+    .progress-counter {
+      font-size: 12px;
+      color: #a0a0a0;
+      text-align: center;
+    }
+
+    /* Анимация +1 */
+    .plus-one {
+      position: absolute;
+      color: white;
+      font-size: 24px; /* Размер текста */
+      font-weight: bold;
+      animation: floatUp 1s forwards;
+      pointer-events: none;
+      z-index: 10;
+      text-shadow: 0 0 5px rgba(255,255,255,0.7);
+      /* Начальное положение - можно регулировать */
+      transform: translate(-50%, -50%) translateY(-20px);
+      /* Дополнительные настройки */
+      opacity: 0.9;
+      font-family: Arial, sans-serif;
+    }
+    
+    @keyframes floatUp {
+      0% {
+        transform: translate(-50%, -50%) translateY(-20px) scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: translate(-50%, -50%) translateY(-50px) scale(1.2);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translate(-50%, -50%) translateY(-80px) scale(0.8);
+        opacity: 0;
+      }
+    }
+
+    /* Основная картинка */
+    .main-image {
+      width: 700px;
+      height: 700px;
+      margin-top: 20px;
+      cursor: pointer;
+      background-image: url('glav.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: relative;
+      transition: transform 0.1s;
+    }
+
+    .main-image:active {
+      transform: scale(0.95);
+    }
+
+
+    .menu-indicator {
+      position: fixed;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.7);
+      z-index: 11;
+      transition: all 0.3s cubic-bezier(0, -0, 0, 1);
+      pointer-events: none;
+      bottom: 52px;
+      left: calc(50% - 32px);
+    }
+
+    .menu-container {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 340px;
+      display: flex;
+      justify-content: center;
+      z-index: 12;
+    }
+    
+    .menu {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .menu-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      width: 56px;
+      height: 56px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .menu-icon {
+      width: 40px;
+      height: 40px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .menu-item.active .menu-icon {
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+    }
+
+    /* Иконки меню */
+    .gift-icon { background-image: url('GIFT.svg'); }
+    .task-icon { background-image: url('TASK.svg'); }
+    .home-icon { background-image: url('HOME.svg'); }
+    .stats-icon { background-image: url('STATS.svg'); }
+    .friends-icon { background-image: url('FRIENDS.svg'); }
+
+    .menu-item.active .gift-icon { background-image: url('GIFT2.svg'); }
+    .menu-item.active .task-icon { background-image: url('TASK2.svg'); }
+    .menu-item.active .home-icon { background-image: url('HOME2.svg'); }
+    .menu-item.active .stats-icon { background-image: url('STATS2.svg'); }
+    .menu-item.active .friends-icon { background-image: url('FRIENDS2.svg'); }
+  </style>
+</head>
+<body>
+  <!-- Шапка -->
+  <div class="header">
+    <div class="header-row">
+      <div class="header-icon-container">
+        <div class="header-icon" style="background-image: url('left-icon-header.png')"></div>
+        <div class="header-text">1 DAY</div>
+      </div>
+      <div class="header-icon-container">
+        <div class="header-icon" style="background-image: url('right-icon-header.png')"></div>
+        <div class="header-text">TIME</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Основное содержимое -->
+  <div class="content">
+    <!-- Блок с балансом -->
+    <div class="balance-container">
+      <div class="balance-wrapper">
+        <div class="balance-icon" style="background-image: url('left-icon.png')"></div>
+        <div class="balance" id="balance">0</div>
+        <div class="balance-icon" style="background-image: url('right-icon.png')"></div>
+      </div>
+      <div class="balance-label">MEGABYTE</div>
+    </div>
+
+    <!-- Блок с прогрессом уровня -->
+    <div class="progress-container">
+      <div class="level-info">
+        <span id="currentLevel">LVL 1</span>
+        <span id="nextLevel">LVL 2</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-counter" id="progressCounter">0/512</div>
+    </div>
+
+    <!-- Основная картинка (персонаж) -->
+    <div class="main-image" id="clickArea"></div>
+  </div>
+
+  <!-- Фон меню -->
+  <div class="menu-background"></div>
+
+  <!-- Индикатор меню -->
+  <div class="menu-indicator" id="menuIndicator"></div>
+
+  <!-- Круглое меню -->
+  <div class="menu-container">
+    <div class="menu">
+      <div class="menu-item" data-index="0">
+        <div class="menu-icon gift-icon"></div>
+      </div>
+      <div class="menu-item" data-index="1">
+        <div class="menu-icon task-icon"></div>
+      </div>
+      <div class="menu-item active" data-index="2">
+        <div class="menu-icon home-icon"></div>
+      </div>
+      <div class="menu-item" data-index="3">
+        <div class="menu-icon stats-icon"></div>
+      </div>
+      <div class="menu-item" data-index="4">
+        <div class="menu-icon friends-icon"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let score = 0;
+    let currentLevel = 1;
+    let progress = 0;
+    const LEVEL_UP_REQUIREMENT = 512;
+    
+    const balanceElement = document.getElementById('balance');
+    const progressFill = document.getElementById('progressFill');
+    const clickArea = document.getElementById('clickArea');
+    const progressCounter = document.getElementById('progressCounter');
+    const currentLevelElement = document.getElementById('currentLevel');
+    const nextLevelElement = document.getElementById('nextLevel');
+    const menuIndicator = document.getElementById('menuIndicator');
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    // Точное позиционирование индикатора
+    function updateIndicator() {
+      const activeItem = document.querySelector('.menu-item.active');
+      if (activeItem) {
+        const index = parseInt(activeItem.getAttribute('data-index'));
+        const position = -140 + index * 70; // 70px - расстояние между центрами иконок
+        menuIndicator.style.transform = `translateX(${position}px)`;
+      }
+    }
+
+    // Улучшенная функция создания анимации +1
+    function createPlusOne(x, y) {
+      const plusOne = document.createElement('div');
+      plusOne.className = 'plus-one';
+      plusOne.textContent = '+1';
+      
+      // Позиционирование относительно клика
+      plusOne.style.left = `${x}px`;
+      plusOne.style.top = `${y}px`;
+      
+      // Дополнительные настройки (можно менять)
+      plusOne.style.fontSize = '24px'; // Размер текста
+      plusOne.style.color = '#ffffff'; // Цвет текста
+      plusOne.style.textShadow = '0 0 8px rgba(110, 69, 226, 0.8)'; // Тень текста
+      
+      document.querySelector('.content').appendChild(plusOne);
+      
+      setTimeout(() => {
+        plusOne.remove();
+      }, 1000);
+    }
+
+    // Обработка клика с новым позиционированием
+    clickArea.addEventListener('click', (e) => {
+      score += 1;
+      balanceElement.textContent = formatNumber(score);
+      
+      progress += 1;
+      const fillPercentage = Math.min((progress / LEVEL_UP_REQUIREMENT) * 100, 100);
+      progressFill.style.width = `${fillPercentage}%`;
+      progressCounter.textContent = `${progress}/${LEVEL_UP_REQUIREMENT}`;
+
+      if (progress >= LEVEL_UP_REQUIREMENT) {
+        currentLevel += 1;
+        progress = 0;
+        progressFill.style.width = `0%`;
+        currentLevelElement.textContent = `LVL ${currentLevel}`;
+        nextLevelElement.textContent = `LVL ${currentLevel + 1}`;
+        progressCounter.textContent = `0/${LEVEL_UP_REQUIREMENT}`;
+      }
+
+      // Новое позиционирование анимации
+      const rect = clickArea.getBoundingClientRect();
+      const clickX = e.clientX;
+      const clickY = e.clientY;
+      
+      // Координаты относительно .content
+      const contentRect = document.querySelector('.content').getBoundingClientRect();
+      const x = clickX - contentRect.left;
+      const y = clickY - contentRect.top;
+      
+      createPlusOne(x, y);
+    });
+  </script>
+</body>
+</html>
