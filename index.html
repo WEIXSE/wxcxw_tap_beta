@@ -362,21 +362,13 @@
       }
     }
 
-    // Улучшенная функция создания анимации +1
+    // Функция создания анимации +1
     function createPlusOne(x, y) {
       const plusOne = document.createElement('div');
       plusOne.className = 'plus-one';
       plusOne.textContent = '+1';
-      
-      // Позиционирование относительно клика
       plusOne.style.left = `${x}px`;
       plusOne.style.top = `${y}px`;
-      
-      // Дополнительные настройки (можно менять)
-      plusOne.style.fontSize = '24px'; // Размер текста
-      plusOne.style.color = '#ffffff'; // Цвет текста
-      plusOne.style.textShadow = '0 0 8px rgba(110, 69, 226, 0.8)'; // Тень текста
-      
       document.querySelector('.content').appendChild(plusOne);
       
       setTimeout(() => {
@@ -384,7 +376,7 @@
       }, 1000);
     }
 
-    // Обработка клика с новым позиционированием
+    // Обработка клика
     clickArea.addEventListener('click', (e) => {
       score += 1;
       balanceElement.textContent = formatNumber(score);
@@ -403,18 +395,23 @@
         progressCounter.textContent = `0/${LEVEL_UP_REQUIREMENT}`;
       }
 
-      // Новое позиционирование анимации
       const rect = clickArea.getBoundingClientRect();
-      const clickX = e.clientX;
-      const clickY = e.clientY;
-      
-      // Координаты относительно .content
-      const contentRect = document.querySelector('.content').getBoundingClientRect();
-      const x = clickX - contentRect.left;
-      const y = clickY - contentRect.top;
-      
+      const x = e.clientX - rect.left + rect.width / 2;
+      const y = e.clientY - rect.top - 30;
       createPlusOne(x, y);
     });
+
+    // Меню - плавное переключение
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelector('.menu-item.active').classList.remove('active');
+        this.classList.add('active');
+        updateIndicator();
+      });
+    });
+
+    // Инициализация индикатора
+    updateIndicator();
   </script>
 </body>
 </html>
