@@ -142,20 +142,22 @@
 
     /* Анимация +1 */
     .plus-one {
-      position: absolute;
-      color: white;
-      font-size: 24px; /* Размер текста */
-      font-weight: bold;
-      animation: floatUp 1s forwards;
-      pointer-events: none;
-      z-index: 10;
-      text-shadow: 0 0 5px rgba(255,255,255,0.7);
-      /* Начальное положение - можно регулировать */
-      transform: translate(-50%, -50%) translateY(-20px);
-      /* Дополнительные настройки */
-      opacity: 0.9;
-      font-family: Arial, sans-serif;
-    }
+  position: absolute;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  animation: floatUp 1s forwards;
+  pointer-events: none;
+  z-index: 10;
+  text-shadow: 0 0 5px rgba(255,255,255,0.7);
+  /* Новые параметры позиционирования - можно регулировать */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* Дополнительные настройки */
+  opacity: 0.9;
+  font-family: Arial, sans-serif;
+}
     
     @keyframes floatUp {
       0% {
@@ -363,18 +365,16 @@
     }
 
     // Функция создания анимации +1
-    function createPlusOne(x, y) {
-      const plusOne = document.createElement('div');
-      plusOne.className = 'plus-one';
-      plusOne.textContent = '+1';
-      plusOne.style.left = `${x}px`;
-      plusOne.style.top = `${y}px`;
-      document.querySelector('.content').appendChild(plusOne);
-      
-      setTimeout(() => {
-        plusOne.remove();
-      }, 1000);
-    }
+    function createPlusOne() {
+  const plusOne = document.createElement('div');
+  plusOne.className = 'plus-one';
+  plusOne.textContent = '+1';
+  document.querySelector('.content').appendChild(plusOne);
+  
+  setTimeout(() => {
+    plusOne.remove();
+  }, 1000);
+}
 
     // Обработка клика
     clickArea.addEventListener('click', (e) => {
